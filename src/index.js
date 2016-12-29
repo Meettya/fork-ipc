@@ -5,6 +5,7 @@
 import Promise from 'bluebird'
 import EventEmitter from 'events'
 import isPlainObject from 'lodash.isplainobject'
+import isFunction from 'lodash.isfunction'
 
 const CHANNEL = 'FORK_IPC_CHANNEL'
 
@@ -12,6 +13,7 @@ const ACTION = {
   ASK_REGISTER: 'ASK_REGISTER',
   EMIT: 'EMIT',
   EXECUTE: 'EXECUTE',
+  PROXY_EXECUTE: 'PROXY_EXECUTE',
   REGISTER: 'REGISTER',
   RESULT: 'RESULT'
 }
@@ -27,7 +29,9 @@ const localEmitter = new EventEmitter()
 // local variables
 let idCounter = 0
 let childrens = {}
+let childrensGrants = {}
 let processors = {}
+let localProcessors = {}
 let requestQueue = {}
 
 /*
@@ -35,6 +39,13 @@ let requestQueue = {}
  */
 function doRequest (domain, command, ...args) {
   let childId, child
+
+  // if exist local processor - execute it
+  if (localProcessors[domain] && localProcessors[domain][command]) {
+    return Promise.try(() => {
+      return localProcessors[domain][command](...args)
+    })
+  }
 
   if (isPlainObject(processors[domain])) {
     childId = processors[domain][command]
@@ -48,7 +59,7 @@ function doRequest (domain, command, ...args) {
       if (child.killed || child.exitCode !== null) {
         reject(`Child died, cant execute domain |${domain}|, command |${command}|, rejected!`)
       } else {
-        const id = getID()
+        const id = getID('parent')
 
         requestQueue[id] = resolve
         child.send({
@@ -116,6 +127,9 @@ function registerChild (child) {
           case ACTION.EMIT:
             processEmited(message)
             break
+          case ACTION.PROXY_EXECUTE:
+            proxyExecuteOnParent(message)
+            break
           default:
             console.log(`Unhandled message type |${message.type}| ignored!`)
             console.log(message)
@@ -128,6 +142,60 @@ function registerChild (child) {
       type: ACTION.ASK_REGISTER
     })
   })
+}
+
+/*
+ * Register services localy
+ */
+function registerLocal (domain, services) {
+  return new Promise((resolve, reject) => {
+    if (!isPlainObject(localProcessors[domain])){
+      localProcessors[domain] = {}
+    }
+
+    for (const service in services) {
+      if (services.hasOwnProperty(service)) {
+        const fn = services[service]
+        if (!isFunction(fn)){
+          return reject(`Service ${service} not a function, reject!`)
+        }
+        localProcessors[domain][service] = fn
+      }
+    }
+    resolve('local registered!')
+  })
+}
+
+/*
+ * Register all allowed to call at parent from child services
+ * Save it as object, to speed up check phase
+ */
+function allowToChild (child, options) {
+  const childId = child.pid
+
+  return new Promise((resolve, reject) => {
+    if (!isPlainObject(options)){
+      return reject('Grant options are misstyped, MUST be an object!')
+    }
+
+    if (!isPlainObject(childrensGrants[childId])) {
+      childrensGrants[childId] = {}
+      for (const domain in options) {
+        if (options.hasOwnProperty(domain)) {
+          const services = options[domain]
+
+          if (!isPlainObject(childrensGrants[childId][domain])){
+            childrensGrants[childId][domain] = {}
+          }
+          for (const service of services) {
+            childrensGrants[childId][domain][service] = true
+          }
+        }
+      }
+    }
+    resolve('granted!')
+  })
+
 }
 
 /*
@@ -155,7 +223,6 @@ function servicesAnnouncement (domain, services) {
           executeOnChild(domain, services, message)
             .then((result) => {
               process.send({
-                domain,
                 result,
                 channel: CHANNEL,
                 id: message.id,
@@ -169,7 +236,6 @@ function servicesAnnouncement (domain, services) {
                 error = error.message
               }
               process.send({
-                domain,
                 error,
                 channel: CHANNEL,
                 id: message.id,
@@ -177,6 +243,9 @@ function servicesAnnouncement (domain, services) {
                 type: ACTION.RESULT
               })
             })
+          break
+        case ACTION.PROXY_RESULT:
+          doResponce(message)
           break
         default:
           console.log(`Child ${process.argv[1]} unknown message`)
@@ -203,6 +272,27 @@ function executeOnChild (domain, services, message) {
 }
 
 /*
+ * Execute via parent request by child
+ * service(function) may be routed by parent to another child or announced by parent inself
+ */
+function executeViaParent (domain, command, ...args) {
+  const id = getID('child')
+
+  return new Promise((resolve, reject) => {
+    requestQueue[id] = resolve
+    process.send({
+      args,
+      command,
+      domain,
+      id,
+      channel: CHANNEL,
+      pid: process.pid,
+      type: ACTION.PROXY_EXECUTE
+    })
+  })
+}
+
+/*
  * Send request result to parent
  */
 function doResponce (message) {
@@ -225,11 +315,53 @@ function processEmited (message) {
 }
 
 /*
+ * Process proxy execute on parent by child
+ */
+function proxyExecuteOnParent (message) {
+  let child = childrens[message.pid]
+
+  // for registered service only
+  if (childrensGrants[message.pid] && childrensGrants[message.pid][message.domain] && childrensGrants[message.pid][message.domain][message.command]) {
+    doRequest(message.domain, message.command, ...message.args)
+      .then((result) => {
+        child.send({
+          result,
+          channel: CHANNEL,
+          id: message.id,
+          status: STATUS.OK,
+          type: ACTION.PROXY_RESULT
+        })
+      })
+      .catch((error) => {
+        // transform error from object to text
+        if (error instanceof Error) {
+          error = error.message
+        }
+        child.send({
+          error,
+          channel: CHANNEL,
+          id: message.id,
+          status: STATUS.FAIL,
+          type: ACTION.PROXY_RESULT
+        })
+      })
+  } else {
+    child.send({
+      channel: CHANNEL,
+      error: 'Cant execute or not granted, reject!',
+      id: message.id,
+      status: STATUS.FAIL,
+      type: ACTION.PROXY_RESULT
+    })
+  }
+}
+
+/*
  * Register anounced services by child in master
  */
 function registerProcessor (child, message) {
   let {services, domain} = message
-  const childId = getID()
+  const childId = child.pid
 
   if (!Array.isArray(services)) {
     return
@@ -263,21 +395,40 @@ function registerProcessor (child, message) {
  * Return new request ID.
  * Its seems simply increment ok
  */
-function getID () {
+function getID (prefix) {
   idCounter += 1
-  return idCounter
+  return `${prefix}${idCounter}`
+}
+
+/*
+ * For diagnostic
+ */
+function doDiagnostic () {
+  return {
+    idCounter,
+    childrens,
+    childrensGrants,
+    processors,
+    requestQueue
+  }
 }
 
 export default {
   child: {
     emit: emitToParent,
+    execute: executeViaParent,
     servicesAnnouncement: servicesAnnouncement
   },
   parent: {
+    allowToChild: allowToChild,
     execute: doRequest,
     on: onFromChild,
     once: onceFromChild,
     registerChild: registerChild,
+    registerLocal: registerLocal,
     removeListener: removeChildListener
+  },
+  system: {
+    diagnostic: doDiagnostic
   }
 }

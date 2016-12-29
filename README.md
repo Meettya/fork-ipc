@@ -2,9 +2,11 @@
 
 ## Overview:
 
-fork-ipc designed to simplify the task of transfering functionality to child processes. Separation takes place in a secure environment, is used as the basic data transmission using a message from the parent to the child process and vice versa. Compared to the use of the network or pipe it provides more assurance of safety and less overhead to transmit requests and data.
+fork-ipc designed to simplify the task of transferring functionality to child processes. Separation takes place in a secure environment, is used as the basic data transmission using a message from the parent to the child process and vice versa. Compared to the use of the network or pipe it provides more assurance of safety and less overhead to transmit requests and data.
 
 Furthermore fork-ipc provides the ability to send messages from the child process to the parent, which may be useful in the processing of external signals, streaming, and so.
+
+Also child process may ask parent to execute(proxy) request and parent process has ACL-like rules for children upward request to prevent "all-may-all" case.
 
 ## What it is:
 
@@ -64,7 +66,7 @@ Minimal example contains 2 files:
 
 ## Usage:
 
-fork-ipc provides 2 types of interface - for parent and for child process
+fork-ipc provides 2 main types of interfaces - for parent and for child process
 
 ### Parent process API
 
@@ -72,16 +74,35 @@ fork-ipc provides 2 types of interface - for parent and for child process
 
     forkIpc.parent.registerChild(forkedProcess) -> Promise
 
-Register child process, maked by `child_process.fork()` and return promise.
-Re-registration are awailable in case of shoutdown old process only.
+Register child process, make by `child_process.fork()` and return promise.
+
+Re-registration are available in case of shutdown old process only.
+
 IMPORTANT: An attempt registration processes, providing the same services in the same domain will cause throw exception.
 
-#### Execute remoute function
+#### Register local
+
+    forkIpc.parent.registerLocal(domain, { seviceName: seviceFn, ... }) -> Promise
+
+Register local service(function), defined here, at parent. Its executed prior, instead of registered service previously by child, for example for test.
+
+#### Allow to call from Child
+
+    forkIpc.parent.allowToChild(forkedProcess, { domain : [seviceName, ...], ...}) -> Promise
+
+Grant to child process call(execute) listed service(function) at selected domain(s) and return promise.
+
+Child can use listed service only, to prevent "all may all" arch.
+
+IMPORTANT: there is no service reachable test in case of ability separate child registration. All checks will be doing in child call.
+
+#### Execute remote function
 
     forkIpc.parent.execute(domain, seviceName, ...arg) -> Promise
 
 Make request to call remote service(function), at chosen domain, with any arguments in child process and return promise.
-Promise will be rejected in case of requested process absence or child process unrichible.
+
+Promise will be rejected in case of requested process absence or child process unreachable.
 
 #### Subscribe on messages
 
@@ -95,7 +116,7 @@ Subscribe on messages from child process, via EventEmitter.
 
 Subscribe once on message from child process, via EventEmitter.
 
-#### Unsubscribe from masseges
+#### Unsubscribe from messages
 
     forkIpc.parent.removeListener(channel, cb)
 
@@ -103,11 +124,19 @@ Unsubscribe from messages from child process, via EventEmitter.
 
 ### Child process API
 
-#### Annonce services
+#### Announce services
 
     forkIpc.child.servicesAnnouncement(domain, { seviceName: seviceFn, ... })
 
-Annonce services (functions) at selected domain to parent process. Announced services only may be called by parent. Child process may announce some services at different domain.
+Announce services (functions) at selected domain to parent process. Announced services only may be called by parent. Child process may announce some services at different domain.
+
+#### Execute remote function
+
+    forkIpc.child.execute(domain, seviceName, ...arg) -> Promise
+
+Make request to call remote service(function), at chosen domain, with any arguments from child process to parent process and return promise.
+
+Promise will be rejected in case of requested process absence or endpoint unreachable.
 
 #### Emit message
 

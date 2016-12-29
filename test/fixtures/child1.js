@@ -10,7 +10,7 @@ function add (a, b) {
   return a + b;
 }
 
-function addAsync (a,b) {
+function addAsync (a, b) {
   return new Promise(function(resolve, reject){
     var resolver = function() {
       return resolve (a + b);

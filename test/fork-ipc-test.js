@@ -59,6 +59,13 @@ describe('Fork IPC', () => {
           return forkIpc.parent.execute('test', 'add', 2, 3)
         }).should.eventually.equal(5)
     })
+
+    it('should allow acess for child-to-parent part', () => {
+      return forkIpc.parent.registerChild(child1)
+        .then(() => {
+          return forkIpc.parent.allowToChild(child1, { 'allowed' : ['addParent'] })
+        }).should.be.fulfilled
+    })
   })
 
   describe('as register services for some child case', () => {
@@ -128,10 +135,34 @@ describe('Fork IPC', () => {
           return forkIpc.parent.execute('test', 'nonexistent', 2, 3)
         }).should.be.rejected
     })
-
   })
 
-  describe('as child to parent notification', () => {
+  describe('as registered local (at parent) services', () => {
+    it('should register local service', () => {
+      const localFn = () => {}
+
+      return forkIpc.parent.registerLocal('test', { 'localFn' : localFn })
+        .should.be.fulfilled
+    })
+
+    it('should rejected local service registration if not function', () => {
+      return forkIpc.parent.registerLocal('test', { 'localFn' : 'fake' })
+        .should.be.rejected
+    })
+
+    it('should execute local service localy', () => {
+      const localFn = (a, b) => {
+        return Promise.resolve(a+b)
+      }
+
+      return forkIpc.parent.registerLocal('test', { 'localFn' : localFn })
+        .then(() => {
+          return forkIpc.parent.execute('test', 'localFn', 2, 3)
+        }).should.eventually.equal(5)
+    })
+  })
+
+  describe('as child to parent', () => {
     let child2
 
     beforeEach(() => {
@@ -152,6 +183,63 @@ describe('Fork IPC', () => {
         .then(() => {
           forkIpc.parent.execute('example', 'makeEmit', testRes)
         })
+    })
+
+    it('should execute (proxy) service from child to parent', () => {
+      return forkIpc.parent.registerChild(child1)
+        .then(() => {
+          return forkIpc.parent.registerChild(child2)
+        })
+        .then(() => {
+          return forkIpc.parent.allowToChild(child2, { 'test' : ['addAsync'] })
+        })
+        .then(() => {
+          return forkIpc.parent.execute('example', 'askSibling', 10, 20)
+        }).should.eventually.equal(30)
+    })
+
+    it('should execute local service from child to parent', () => {
+      const localFn = (a, b) => {
+        return Promise.resolve(a+b)
+      }
+
+      return forkIpc.parent.registerLocal('test', { 'localFn' : localFn })
+        .then(() => {
+          return forkIpc.parent.registerChild(child2)
+        })
+        .then(() => {
+          return forkIpc.parent.allowToChild(child2, { 'test' : ['localFn'] })
+        })
+        .then(() => {
+          return forkIpc.parent.execute('example', 'askParent', 10, 20)
+        }).should.eventually.equal(30)
+    })
+
+    describe('should reject execute service from child to parent', () => {
+
+      it('when no executor registered', () => {
+        return forkIpc.parent.registerChild(child2)
+          .then(() => {
+            return forkIpc.parent.allowToChild(child2, { 'test' : ['addAsync'] })
+          })
+          .then(() => {
+            return forkIpc.parent.execute('example', 'askSibling', 10, 20)
+          }).should.be.rejected
+      })
+
+      it('when execute not allowed', () => {
+        return forkIpc.parent.registerChild(child1)
+          .then(() => {
+            return forkIpc.parent.registerChild(child2)
+          })
+          .then(() => {
+            return forkIpc.parent.allowToChild(child2, { 'test' : ['add'] })
+          })
+          .then(() => {
+            return forkIpc.parent.execute('example', 'askSibling', 10, 20)
+          }).should.be.rejected
+      })
+
     })
   })
 
