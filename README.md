@@ -1,3 +1,6 @@
+[![Dependency Status](https://gemnasium.com/Meettya/fork-ipc.png)](https://gemnasium.com/Meettya/fork-ipc)
+[![Build Status](https://travis-ci.org/Meettya/fork-ipc.png?branch=master)](https://travis-ci.org/Meettya/fork-ipc)
+
 # Fork IPC
 
 ## Overview:
@@ -21,7 +24,7 @@ All this should be implemented independently.
 
 Minimal example contains 2 files:
 
-    // main.js 
+    // main.js
     /*
      * This is parent process example
      */
@@ -47,7 +50,7 @@ Minimal example contains 2 files:
       });
 
 
-    // child.js 
+    // child.js
     /*
      * This is child process example
      */
@@ -143,5 +146,3 @@ Promise will be rejected in case of requested process absence or endpoint unreac
     forkIpc.child.emit(channel, ...args)
 
 Emit message to parent process, via EventEmitter on parent side. May be used for notify parent on some events in child process.
-
-

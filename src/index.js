@@ -4,8 +4,6 @@
 
 import Promise from 'bluebird'
 import EventEmitter from 'events'
-import isPlainObject from 'lodash.isplainobject'
-import isFunction from 'lodash.isfunction'
 
 const CHANNEL = 'FORK_IPC_CHANNEL'
 
@@ -54,10 +52,10 @@ function doRequest (domain, command, ...args) {
 
   return new Promise((resolve, reject) => {
     if (!child) {
-      reject(`Not supported - domain |${domain}|, command |${command}|, rejected!`)
+      reject(Error(`Not supported - domain |${domain}|, command |${command}|, rejected!`))
     } else {
       if (child.killed || child.exitCode !== null) {
-        reject(`Child died, cant execute domain |${domain}|, command |${command}|, rejected!`)
+        reject(Error(`Child died, cant execute domain |${domain}|, command |${command}|, rejected!`))
       } else {
         const id = getID('parent')
 
@@ -149,15 +147,15 @@ function registerChild (child) {
  */
 function registerLocal (domain, services) {
   return new Promise((resolve, reject) => {
-    if (!isPlainObject(localProcessors[domain])){
+    if (!isPlainObject(localProcessors[domain])) {
       localProcessors[domain] = {}
     }
 
     for (const service in services) {
       if (services.hasOwnProperty(service)) {
         const fn = services[service]
-        if (!isFunction(fn)){
-          return reject(`Service ${service} not a function, reject!`)
+        if (typeof fn !== 'function') {
+          return reject(Error(`Service ${service} not a function, reject!`))
         }
         localProcessors[domain][service] = fn
       }
@@ -174,8 +172,8 @@ function allowToChild (child, options) {
   const childId = child.pid
 
   return new Promise((resolve, reject) => {
-    if (!isPlainObject(options)){
-      return reject('Grant options are misstyped, MUST be an object!')
+    if (!isPlainObject(options)) {
+      return reject(Error('Grant options are misstyped, MUST be an object!'))
     }
 
     if (!isPlainObject(childrensGrants[childId])) {
@@ -184,7 +182,7 @@ function allowToChild (child, options) {
         if (options.hasOwnProperty(domain)) {
           const services = options[domain]
 
-          if (!isPlainObject(childrensGrants[childId][domain])){
+          if (!isPlainObject(childrensGrants[childId][domain])) {
             childrensGrants[childId][domain] = {}
           }
           for (const service of services) {
@@ -195,7 +193,6 @@ function allowToChild (child, options) {
     }
     resolve('granted!')
   })
-
 }
 
 /*
@@ -268,7 +265,7 @@ function executeOnChild (domain, services, message) {
       })
     }
   }
-  return Promise.reject(`unknown execute domain: |${message.domain}| command: |${message.command}|`)
+  return Promise.reject(Error(`unknown execute domain: |${message.domain}| command: |${message.command}|`))
 }
 
 /*
@@ -300,9 +297,9 @@ function doResponce (message) {
     if (message.status === STATUS.OK) {
       requestQueue[message.id](message.result)
     } else if (message.status === STATUS.FAIL) {
-      requestQueue[message.id](Promise.reject(message.error))
+      requestQueue[message.id](Promise.reject(Error(message.error)))
     } else {
-      requestQueue[message.id](Promise.reject(`unknown status |${message.status}|`))
+      requestQueue[message.id](Promise.reject(Error(`unknown status |${message.status}|`)))
     }
   }
 }
@@ -389,6 +386,13 @@ function registerProcessor (child, message) {
     }
     processors[domain][command] = childId
   }
+}
+
+/*
+ * Simpy check is Object (plain)
+ */
+function isPlainObject (val) {
+  return val instanceof Object && val.constructor === Object
 }
 
 /*
