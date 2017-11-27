@@ -5,7 +5,7 @@
   "main": "./lib/index.js",
   "scripts": {
     "test": "mocha ./test/*-test.js",
-    "build": "./node_modules/.bin/babel src --out-dir lib"
+    "build_lib": "./node_modules/.bin/babel src --out-dir lib"
   },
   "repository": {
     "type": "git",
