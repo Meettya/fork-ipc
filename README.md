@@ -1,5 +1,6 @@
 [![Dependency Status](https://gemnasium.com/Meettya/fork-ipc.png)](https://gemnasium.com/Meettya/fork-ipc)
 [![Build Status](https://travis-ci.org/Meettya/fork-ipc.png?branch=master)](https://travis-ci.org/Meettya/fork-ipc)
+[![JavaScript Style Guide](https://img.shields.io/badge/code%20style-standard-brightgreen.svg)](http://standardjs.com/)
 
 # Fork IPC
 
