@@ -7,14 +7,13 @@ import chaiAsPromised from 'chai-as-promised'
 
 chai.use(chaiAsPromised)
 
-GLOBAL.should = should()
-GLOBAL.expect = expect // to work with 'undefined' - should cant it
-GLOBAL.assert = assert
+global.should = should()
+global.expect = expect // to work with 'undefined' - should cant it
+global.assert = assert
 
 /*
  * for easy inspect
  */
-GLOBAL.inspect = (item) => {
+global.inspect = (item) => {
   return inspect(item, true, null, true)
 }
-  
