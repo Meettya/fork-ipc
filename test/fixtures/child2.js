@@ -2,7 +2,7 @@
  * child2
  */
 
-var forkIpc = require('../..').default;
+const { servicesAnnouncement, child } = require("../..");
 
 function add (a, b) {
   return a + b;
@@ -19,7 +19,7 @@ function multiplyAsync (a,b) {
 }
 
 function makeEmit (a) {
-  forkIpc.child.emit('emiterBus', a);
+  child.emit('emiterBus', a);
 }
 
 function doDie () {
@@ -31,23 +31,23 @@ function doDie () {
 }
 
 function askSibling (a, b) {
-  return forkIpc.child.execute('test', 'addAsync', a, b)
+  return child.execute('test', 'addAsync', a, b)
 }
 
 function askParent (a, b) {
-  return forkIpc.child.execute('test', 'localFn', a, b)
+  return child.execute('test', 'localFn', a, b)
 }
 
 const services = {
-  add: add,
-  askParent: askParent,
-  askSibling: askSibling,
-  doDie: doDie,
-  makeEmit: makeEmit,
-  multiplyAsync: multiplyAsync
+  add,
+  askParent,
+  askSibling,
+  doDie,
+  makeEmit,
+  multiplyAsync
 }
 
-forkIpc.child.servicesAnnouncement('example', services);
+servicesAnnouncement('example', services);
 
-forkIpc.child.emit('test_event', 'bazzz');
-forkIpc.child.emit('test_event2', 'fooBar');
+child.emit('test_event', 'bazzz');
+child.emit('test_event2', 'fooBar');

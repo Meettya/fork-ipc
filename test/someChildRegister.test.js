@@ -6,10 +6,12 @@ const { fork } = require("child_process");
 const childPath = `${__dirname}/fixtures`;
 
 describe("as register services for some child case", () => {
-  let forkIpc, child1, child2, child1_double;
+  let execute, registerChild, child1, child2, child1_double;
 
   beforeEach(() => {
-    forkIpc = require("..").default;
+    const ForkIpc = require("..");
+    execute = ForkIpc.execute;
+    registerChild = ForkIpc.registerChild;
     child1 = fork(`${childPath}/child1.js`);
     child2 = fork(`${childPath}/child2.js`);
     child1_double = fork(`${childPath}/child1.js`);
@@ -22,15 +24,14 @@ describe("as register services for some child case", () => {
   });
 
   test("should register two child with no intersection at services", () => {
-    return forkIpc.parent
-      .registerChild(child1)
+    return registerChild(child1)
       .then(() => {
-        return forkIpc.parent.registerChild(child2);
+        return registerChild(child2);
       })
       .then(() => {
         return Promise.all([
-          forkIpc.parent.execute("test", "add", 2, 3),
-          forkIpc.parent.execute("example", "add", 10, 20),
+          execute("test", "add", 2, 3),
+          execute("example", "add", 10, 20),
         ]);
       })
       .then((res) => {
@@ -40,10 +41,9 @@ describe("as register services for some child case", () => {
 
   test("should throw error if services has intersection", () => {
     expect.assertions(1);
-    return forkIpc.parent
-      .registerChild(child1)
+    return registerChild(child1)
       .then(() => {
-        return forkIpc.parent.registerChild(child1_double);
+        return registerChild(child1_double);
       })
       .catch((e) => {
         return expect(e).toBeInstanceOf(Error);

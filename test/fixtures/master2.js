@@ -2,23 +2,23 @@
  * Master
  */
 
-var forkIpc = require('../..').default;
+const { registerChild, execute } = require('../..');
 
 var childProcess  = require('child_process');
 
 var child1 = childProcess.fork('./child1.js');
 var child2 = childProcess.fork('./child2.js');
 
-forkIpc.parent.registerChild(child1)
+registerChild(child1)
   .then(function(){
     console.log('registerChild(child2)');
-    var res = forkIpc.parent.registerChild(child2);
+    var res = registerChild(child2);
     console.log(res);
     return res;
   })
   .then(function(){
     console.log('re-registerChild(child1)');
-    var res = forkIpc.parent.registerChild(child1);
+    var res = registerChild(child1);
     console.log(res);
     return res;
   })
@@ -28,7 +28,7 @@ forkIpc.parent.registerChild(child1)
   })
   .then(function(result){
 
-    forkIpc.parent.execute('test', 'add', 2, 3)
+    execute('test', 'add', 2, 3)
       .then(function(result){
         console.log('MASTER execute OK');
         console.log(result);

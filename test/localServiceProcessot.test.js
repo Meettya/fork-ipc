@@ -3,30 +3,28 @@
  */
 
 describe("as registered local (at parent) services", () => {
-  let forkIpc;
+  let execute, parent;
 
   beforeEach(() => {
-    forkIpc = require("..").default;
+    const ForkIpc = require("..");
+    execute = ForkIpc.execute;
+    parent = ForkIpc.parent;
   });
 
   test("should register local service", () => {
     expect.assertions(1);
     const localFn = () => {};
 
-    return forkIpc.parent
-      .registerLocal("test", { localFn: localFn })
-      .then(() => {
-        expect(true).toBe(true);
-      });
+    return parent.registerLocal("test", { localFn: localFn }).then(() => {
+      expect(true).toBe(true);
+    });
   });
 
   test("should rejected local service registration if not function", () => {
     expect.assertions(1);
-    return forkIpc.parent
-      .registerLocal("test", { localFn: "fake" })
-      .catch((e) => {
-        return expect(e).toBeInstanceOf(Error);
-      });
+    return parent.registerLocal("test", { localFn: "fake" }).catch((e) => {
+      return expect(e).toBeInstanceOf(Error);
+    });
   });
 
   test("should execute local service localy", () => {
@@ -34,10 +32,10 @@ describe("as registered local (at parent) services", () => {
       return Promise.resolve(a + b);
     };
 
-    return forkIpc.parent
+    return parent
       .registerLocal("test", { localFn: localFn })
       .then(() => {
-        return forkIpc.parent.execute("test", "localFn", 2, 3);
+        return execute("test", "localFn", 2, 3);
       })
       .then((res) => {
         expect(res).toBe(5);

@@ -6,10 +6,14 @@ const { fork } = require("child_process");
 const childPath = `${__dirname}/fixtures`;
 
 describe("as child to parent", () => {
-  let forkIpc, child1, child2;
+  let parent, execute, registerChild, child1, child2;
 
   beforeEach(() => {
-    forkIpc = require("..").default;
+    const ForkIpc = require("..");
+    parent = ForkIpc.parent;
+    execute = ForkIpc.execute;
+    registerChild = ForkIpc.registerChild;
+
     child1 = fork(`${childPath}/child1.js`);
     child2 = fork(`${childPath}/child2.js`);
   });
@@ -22,38 +26,37 @@ describe("as child to parent", () => {
   test("should send once notification from child to parent", (done) => {
     expect.assertions(1);
     const testRes = 10;
-    forkIpc.parent.once("emiterBus", (res) => {
+    parent.once("emiterBus", (res) => {
       expect(res).toBe(testRes);
       done();
     });
-    forkIpc.parent.registerChild(child2).then(() => {
-      forkIpc.parent.execute("example", "makeEmit", testRes);
+    registerChild(child2).then(() => {
+      execute("example", "makeEmit", testRes);
     });
   });
 
   test("should send notification from child to parent", (done) => {
     expect.assertions(1);
     const testRes = 10;
-    forkIpc.parent.on("emiterBus", (res) => {
+    parent.on("emiterBus", (res) => {
       expect(res).toBe(testRes);
       done();
     });
-    forkIpc.parent.registerChild(child2).then(() => {
-      forkIpc.parent.execute("example", "makeEmit", testRes);
+    registerChild(child2).then(() => {
+      execute("example", "makeEmit", testRes);
     });
   });
 
   test("should execute (proxy) service from child to parent", () => {
-    return forkIpc.parent
-      .registerChild(child1)
+    return registerChild(child1)
       .then(() => {
-        return forkIpc.parent.registerChild(child2);
+        return registerChild(child2);
       })
       .then(() => {
-        return forkIpc.parent.allowToChild(child2, { test: ["addAsync"] });
+        return parent.allowToChild(child2, { test: ["addAsync"] });
       })
       .then(() => {
-        return forkIpc.parent.execute("example", "askSibling", 10, 20);
+        return execute("example", "askSibling", 10, 20);
       })
       .then((res) => {
         expect(res).toBe(30);
@@ -65,16 +68,16 @@ describe("as child to parent", () => {
       return Promise.resolve(a + b);
     };
 
-    return forkIpc.parent
+    return parent
       .registerLocal("test", { localFn: localFn })
       .then(() => {
-        return forkIpc.parent.registerChild(child2);
+        return registerChild(child2);
       })
       .then(() => {
-        return forkIpc.parent.allowToChild(child2, { test: ["localFn"] });
+        return parent.allowToChild(child2, { test: ["localFn"] });
       })
       .then(() => {
-        return forkIpc.parent.execute("example", "askParent", 10, 20);
+        return execute("example", "askParent", 10, 20);
       })
       .then((res) => {
         expect(res).toBe(30);
@@ -84,13 +87,12 @@ describe("as child to parent", () => {
   describe("should reject execute service from child to parent", () => {
     test("when no executor registered", () => {
       expect.assertions(1);
-      return forkIpc.parent
-        .registerChild(child2)
+      return registerChild(child2)
         .then(() => {
-          return forkIpc.parent.allowToChild(child2, { test: ["addAsync"] });
+          return parent.allowToChild(child2, { test: ["addAsync"] });
         })
         .then(() => {
-          return forkIpc.parent.execute("example", "askSibling", 10, 20);
+          return execute("example", "askSibling", 10, 20);
         })
         .catch((e) => {
           return expect(e).toBeInstanceOf(Error);
@@ -99,16 +101,15 @@ describe("as child to parent", () => {
 
     test("when execute not allowed", () => {
       expect.assertions(1);
-      return forkIpc.parent
-        .registerChild(child1)
+      return registerChild(child1)
         .then(() => {
-          return forkIpc.parent.registerChild(child2);
+          return registerChild(child2);
         })
         .then(() => {
-          return forkIpc.parent.allowToChild(child2, { test: ["add"] });
+          return parent.allowToChild(child2, { test: ["add"] });
         })
         .then(() => {
-          return forkIpc.parent.execute("example", "askSibling", 10, 20);
+          return execute("example", "askSibling", 10, 20);
         })
         .catch((e) => {
           return expect(e).toBeInstanceOf(Error);

@@ -7,10 +7,12 @@ const { sleeper } = require("./utils/sleeper");
 const childPath = `${__dirname}/fixtures`;
 
 describe("work with losted child", () => {
-  let forkIpc, child2;
+  let execute, registerChild, child2;
 
   beforeEach(() => {
-    forkIpc = require("..").default;
+    const ForkIpc = require("..");
+    execute = ForkIpc.execute;
+    registerChild = ForkIpc.registerChild;
     child2 = fork(`${childPath}/child2.js`);
   });
 
@@ -20,11 +22,10 @@ describe("work with losted child", () => {
 
   test("should reject execute if child killed by parent", () => {
     expect.assertions(1);
-    return forkIpc.parent
-      .registerChild(child2)
+    return registerChild(child2)
       .then(() => {
         child2.kill();
-        return forkIpc.parent.execute("example", "add", 2, 3);
+        return execute("example", "add", 2, 3);
       })
       .catch((e) => {
         return expect(e).toBeInstanceOf(Error);
@@ -32,15 +33,14 @@ describe("work with losted child", () => {
   });
 
   test("should allow re-register new child if old killed by parent", () => {
-    return forkIpc.parent
-      .registerChild(child2)
+    return registerChild(child2)
       .then(() => {
         child2.kill();
         child2 = fork(`${childPath}/child2.js`);
-        return forkIpc.parent.registerChild(child2);
+        return registerChild(child2);
       })
       .then(() => {
-        return forkIpc.parent.execute("example", "add", 2, 3);
+        return execute("example", "add", 2, 3);
       })
       .then((res) => {
         expect(res).toBe(5);
@@ -49,14 +49,13 @@ describe("work with losted child", () => {
 
   test("should reject execute if child killed by itself", () => {
     expect.assertions(1);
-    return forkIpc.parent
-      .registerChild(child2)
+    return registerChild(child2)
       .then(() => {
-        return forkIpc.parent.execute("example", "doDie");
+        return execute("example", "doDie");
       })
       .then(sleeper(300))
       .then(() => {
-        return forkIpc.parent.execute("example", "add", 2, 3);
+        return execute("example", "add", 2, 3);
       })
       .catch((e) => {
         return expect(e).toBeInstanceOf(Error);
@@ -64,18 +63,17 @@ describe("work with losted child", () => {
   });
 
   test("should allow re-register new child if old killed by itself", () => {
-    return forkIpc.parent
-      .registerChild(child2)
+    return registerChild(child2)
       .then(() => {
-        return forkIpc.parent.execute("example", "doDie");
+        return execute("example", "doDie");
       })
       .then(sleeper(300))
       .then(() => {
         child2 = fork(`${childPath}/child2.js`);
-        return forkIpc.parent.registerChild(child2);
+        return registerChild(child2);
       })
       .then(() => {
-        return forkIpc.parent.execute("example", "add", 2, 3);
+        return execute("example", "add", 2, 3);
       })
       .then((res) => {
         expect(res).toBe(5);

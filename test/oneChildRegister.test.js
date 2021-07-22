@@ -7,10 +7,14 @@ const { sleeper } = require("./utils/sleeper");
 const childPath = `${__dirname}/fixtures`;
 
 describe("as register services for one child case", () => {
-  let forkIpc, child1, childDelay;
+  let parent, execute, registerChild, child1, childDelay;
 
   beforeEach(() => {
-    forkIpc = require("..").default;
+    const ForkIpc = require("..");
+    parent = ForkIpc.parent
+    execute = ForkIpc.execute
+    registerChild = ForkIpc.registerChild
+
     child1 = fork(`${childPath}/child1.js`);
     childDelay = fork(`${childPath}/child_delay.js`);
   });
@@ -21,10 +25,9 @@ describe("as register services for one child case", () => {
   });
 
   test("should register one child without any delay", () => {
-    return forkIpc.parent
-      .registerChild(child1)
+    return registerChild(child1)
       .then(() => {
-        return forkIpc.parent.execute("test", "add", 2, 3);
+        return execute("test", "add", 2, 3);
       })
       .then((res) => {
         expect(res).toBe(5);
@@ -35,10 +38,10 @@ describe("as register services for one child case", () => {
     return Promise.resolve()
       .then(sleeper(500))
       .then(() => {
-        return forkIpc.parent.registerChild(child1);
+        return registerChild(child1);
       })
       .then(() => {
-        return forkIpc.parent.execute("test", "add", 2, 3);
+        return execute("test", "add", 2, 3);
       })
       .then((res) => {
         expect(res).toBe(5);
@@ -46,10 +49,9 @@ describe("as register services for one child case", () => {
   });
 
   test("should register one child without delay on parent and with delay on child", () => {
-    return forkIpc.parent
-      .registerChild(childDelay)
+    return registerChild(childDelay)
       .then(() => {
-        return forkIpc.parent.execute("test", "add", 2, 3);
+        return execute("test", "add", 2, 3);
       })
       .then((res) => {
         expect(res).toBe(5);
@@ -60,10 +62,10 @@ describe("as register services for one child case", () => {
     return Promise.resolve()
       .then(sleeper(600))
       .then(() => {
-        return forkIpc.parent.registerChild(childDelay);
+        return registerChild(childDelay);
       })
       .then(() => {
-        return forkIpc.parent.execute("test", "add", 2, 3);
+        return execute("test", "add", 2, 3);
       })
       .then((res) => {
         expect(res).toBe(5);
@@ -71,10 +73,9 @@ describe("as register services for one child case", () => {
   });
 
   test("should allow acess for child-to-parent part", () => {
-    return forkIpc.parent
-      .registerChild(child1)
+    return registerChild(child1)
       .then(() => {
-        return forkIpc.parent.allowToChild(child1, {
+        return parent.allowToChild(child1, {
           allowed: ["addParent"],
         });
       })
