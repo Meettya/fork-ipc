@@ -2,8 +2,6 @@
  * child1
  */
 
-var Promise = require('bluebird');
-
 var forkIpc = require('../..').default;
 
 function add (a, b) {

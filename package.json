@@ -1,11 +1,13 @@
 {
   "name": "fork-ipc",
-  "version": "0.1.1",
+  "version": "1.0.1",
   "description": "Safe and easy fork IPC wrapper.",
-  "main": "./lib/index.js",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "scripts": {
-    "test": "mocha ./test/*-test.js",
-    "build_lib": "./node_modules/.bin/babel src --out-dir lib"
+    "build": "tsc",
+    "test": "jest",
+    "prepublish": "npm run build && npm run test"
   },
   "repository": {
     "type": "git",
@@ -23,24 +25,12 @@
   },
   "homepage": "https://github.com/Meettya/fork-ipc#readme",
   "engines": {
-    "node": ">=0.12.7"
-  },
-  "standard": {
-    "parser": "babel-eslint"
-  },
-  "dependencies": {
-    "bluebird": "^3.4.6"
+    "node": ">=12.0.0"
   },
   "devDependencies": {
-    "babel-cli": "^6.26.0",
-    "babel-core": "^6.26.0",
-    "babel-eslint": "^8.0.2",
-    "babel-preset-env": "^1.6.1",
-    "chai": "^4.1.2",
-    "chai-as-promised": "^7.0.0",
-    "core-js": "^2.4.1",
-    "decache": "^4.1.0",
-    "mocha": "^4.0.1",
-    "standard": "^10.0.3"
+    "@types/jest": "^26.0.24",
+    "@types/node": "^16.3.2",
+    "jest": "^27.0.6",
+    "typescript": "^4.3.5"
   }
 }
