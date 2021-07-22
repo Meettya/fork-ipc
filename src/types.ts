@@ -27,5 +27,5 @@ export declare type DomainGrants = Record<Domain, CommandGrants>
 export declare type ChildrensGrants = Record<ChildId, DomainGrants>
 
 export declare interface IRegisterProcessor {
-    (child: ChildProcess, message: MessageAny, resolve: Resolve, reject: Reject): void;
+  (child: ChildProcess, message: MessageAny, resolve: Resolve, reject: Reject): void;
 }

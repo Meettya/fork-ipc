@@ -4,7 +4,7 @@ let idCounter = 0;
  * Simpy check is Object (plain)
  */
 export const isPlainObject = (val: any) => (
-    val instanceof Object && val.constructor === Object
+  val instanceof Object && val.constructor === Object
 )
 
 /*
@@ -12,8 +12,8 @@ export const isPlainObject = (val: any) => (
  * Its seems simply increment ok
  */
 export const getID = (prefix: string) => {
-    idCounter += 1
-    return `${prefix}${idCounter}`
+  idCounter += 1
+  return `${prefix}${idCounter}`
 }
 
 /*
@@ -25,5 +25,5 @@ export const getIdConter = () => idCounter
  * Wrapper for promiseTry
  */
 export const promiseTry = (func: Function) => (
-    new Promise((resolve) => resolve(func()))
+  new Promise((resolve) => resolve(func()))
 )
