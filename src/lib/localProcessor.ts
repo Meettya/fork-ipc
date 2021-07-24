@@ -2,8 +2,8 @@
  * Local Processor for Fork IPC
  */
 
-import * as Types from './types';
-import { isPlainObject } from './utils';
+import { isPlainObject } from '@Lib/utils';
+import * as Types from '@Types/common';
 
 const localProcessors: Types.LocalProcessors = {}
 

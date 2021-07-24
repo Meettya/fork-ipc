@@ -2,13 +2,14 @@
  * Parent part for Fork IPC
  */
 
-import { getChild } from './child';
-import { ACTIONS, CHANNEL, STATUS } from './constants';
-import { processEmited } from './emitter';
-import { registerProcessor } from './processor';
-import { doRequest, doResponce } from './requests';
-import * as Types from './types';
-import { isPlainObject } from './utils';
+import { getChild } from '@Lib/child';
+import { ACTIONS, CHANNEL, STATUS } from '@Lib/constants';
+import { processEmited } from '@Lib/emitter';
+import { registerProcessor } from '@Lib/processor';
+import { doRequest, doResponce } from '@Lib/requests';
+// import * as Message from 'Types/message';
+import { isPlainObject } from '@Lib/utils';
+import * as Types from '@Types/common';
 
 const childrensGrants: Types.ChildrensGrants = {}
 

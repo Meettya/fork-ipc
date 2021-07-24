@@ -1,20 +1,23 @@
 import EventEmitter from 'events';
 
-import { ACTIONS, CHANNEL } from './constants';
-import * as Types from './types';
+import { ACTIONS, CHANNEL } from '@Lib/constants';
+import * as Types from '@Types/common';
+import * as Message from '@Types/message';
 
 const localEmitter = new EventEmitter()
 
 /*
  * Do emit message to parent from child.
  */
-export const emitToParent = (eventName: Types.EventName, ...data: any[]) => {
-  process.send!({
+export const emitToParent = (eventName: Types.EventName, ...data: Types.Args) => {
+  const msg: Message.Emit = {
     data,
     eventName,
     channel: CHANNEL,
     type: ACTIONS.EMIT
-  })
+  }
+
+  process.send!(msg)
 }
 
 /*

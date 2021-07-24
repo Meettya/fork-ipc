@@ -2,13 +2,13 @@
  * Fork IPC - safe and easy fork IPC wrapper.
  */
 
-import { executeViaParent, getChildrens, servicesAnnouncement } from './child';
-import { emitToParent, onceFromChild, onFromChild, removeChildListener } from './emitter';
-import { registerLocal } from './localProcessor';
-import { allowToChild, getChildrensGrants, registerChild } from './parent';
-import { getProcessors } from './processor';
-import { doRequest, getRequestQueue } from './requests';
-import { getIdConter } from './utils';
+import { executeViaParent, getChildrens, servicesAnnouncement } from '@Lib/child';
+import { emitToParent, onceFromChild, onFromChild, removeChildListener } from '@Lib/emitter';
+import { registerLocal } from '@Lib/localProcessor';
+import { allowToChild, getChildrensGrants, registerChild } from '@Lib/parent';
+import { getProcessors } from '@Lib/processor';
+import { doRequest, getRequestQueue } from '@Lib/requests';
+import { getIdConter } from '@Lib/utils';
 
 const child = {
   emit: emitToParent,

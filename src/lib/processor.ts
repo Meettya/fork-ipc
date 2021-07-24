@@ -2,9 +2,10 @@
  * Processor for Fork IPC
  */
 
-import { getChild, setChild } from './child';
-import * as Types from './types';
-import { isPlainObject } from './utils';
+import { getChild, setChild } from '@Lib/child';
+// import * as Message from 'Types/message';
+import { isPlainObject } from '@Lib/utils';
+import * as Types from '@Types/common';
 
 const processors: Types.Processors = {}
 

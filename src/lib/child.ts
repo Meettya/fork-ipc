@@ -2,10 +2,11 @@
  * Child functional for Fork IPC
  */
 
-import { ACTIONS, CHANNEL, STATUS } from './constants';
-import { doResponce, setRequestToQueue } from './requests';
-import * as Types from './types';
-import { getID, isPlainObject, promiseTry } from './utils';
+import { ACTIONS, CHANNEL, STATUS } from '@Lib/constants';
+import { doResponce, setRequestToQueue } from '@Lib/requests';
+import { getID, isPlainObject, promiseTry } from '@Lib/utils';
+import * as Types from '@Types/common';
+import * as Message from '@Types/message';
 
 const childrens: Types.Childrens = {}
 
@@ -15,13 +16,15 @@ const childrens: Types.Childrens = {}
  */
 export const servicesAnnouncement = (domain: Types.Domain, services: Types.LocalServices) => {
   const childRegister = () => {
-    process.send!({
+    const msg: Message.Register = {
       domain,
       channel: CHANNEL,
       pid: process.pid,
       services: Object.keys(services),
       type: ACTIONS.REGISTER
-    })
+    }
+
+    process.send!(msg)
   }
 
   process.on('message', (message: Types.MessageAny) => {
@@ -33,26 +36,30 @@ export const servicesAnnouncement = (domain: Types.Domain, services: Types.Local
         case ACTIONS.EXECUTE:
           executeOnChild(domain, services, message)
             .then((result) => {
-              process.send!({
+              const msg: Message.ResultOk = {
                 result,
                 channel: CHANNEL,
                 id: message.id,
                 status: STATUS.OK,
                 type: ACTIONS.RESULT
-              })
+              }
+
+              process.send!(msg)
             })
             .catch((error) => {
               // transform error from object to text
               if (error instanceof Error) {
                 error = error.message
               }
-              process.send!({
+              const msg: Message.ResultFail = {
                 error,
                 channel: CHANNEL,
                 id: message.id,
                 status: STATUS.FAIL,
                 type: ACTIONS.RESULT
-              })
+              }
+
+              process.send!(msg)
             })
           break
         case ACTIONS.PROXY_RESULT:
@@ -72,12 +79,11 @@ export const servicesAnnouncement = (domain: Types.Domain, services: Types.Local
  * Execute via parent request by child
  * service(function) may be routed by parent to another child or announced by parent inself
  */
-export const executeViaParent = (domain: Types.Domain, command: Types.Command, ...args: any[]) => {
+export const executeViaParent = (domain: Types.Domain, command: Types.Command, ...args: Types.Args) => {
   const id = getID('child')
 
   return new Promise((resolve) => {
-    setRequestToQueue(id, resolve)
-    process.send!({
+    const msg: Message.ProxyExecute = {
       args,
       command,
       domain,
@@ -85,7 +91,10 @@ export const executeViaParent = (domain: Types.Domain, command: Types.Command, .
       channel: CHANNEL,
       pid: process.pid,
       type: ACTIONS.PROXY_EXECUTE
-    })
+    }
+
+    setRequestToQueue(id, resolve)
+    process.send!(msg)
   })
 }
 

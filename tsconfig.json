@@ -16,7 +16,13 @@
     "noUnusedParameters": true,
     "noImplicitReturns": true,
     "noFallthroughCasesInSwitch": true,
-    "esModuleInterop": true
+    "esModuleInterop": true,
+    "baseUrl": "./",
+    "paths": {
+      "@/*": ["src/*"],
+      "@Lib/*": ["src/lib/*"],
+      "@Types/*": ["src/types/*"],
+    }
   },
   "exclude": [
     "node_modules",

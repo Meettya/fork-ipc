@@ -2,12 +2,13 @@
  * Request functional for Fork IPC
  */
 
-import { getChild } from './child';
-import { ACTIONS, CHANNEL, STATUS } from './constants';
-import { tryGetLocalProcessor } from './localProcessor';
-import { getChildId } from './processor';
-import * as Types from './types';
-import { getID, promiseTry } from './utils';
+import { getChild } from '@Lib/child';
+import { ACTIONS, CHANNEL, STATUS } from '@Lib/constants';
+import { tryGetLocalProcessor } from '@Lib/localProcessor';
+import { getChildId } from '@Lib/processor';
+// import * as Message from 'Types/message';
+import { getID, promiseTry } from '@Lib/utils';
+import * as Types from '@Types/common';
 
 const requestQueue: Types.RequestQueue = {}
 
