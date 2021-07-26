@@ -27,7 +27,7 @@ export const servicesAnnouncement = (domain: Types.Domain, services: Types.Local
     process.send!(msg)
   }
 
-  process.on('message', (message: Types.MessageAny) => {
+  process.on('message', (message: Message.AskRegister | Message.Execute | Message.ProxyResultKnown) => {
     if (isPlainObject(message) && message.channel === CHANNEL) {
       switch (message.type) {
         case ACTIONS.ASK_REGISTER:
@@ -101,7 +101,7 @@ export const executeViaParent = (domain: Types.Domain, command: Types.Command, .
 /*
  * Execute on child request by parent
  */
-const executeOnChild = (domain: Types.Domain, services: Types.LocalServices, message: Types.MessageAny) => {
+const executeOnChild = (domain: Types.Domain, services: Types.LocalServices, message: Message.Execute) => {
   if (message.domain === domain) {
     if (services[message.command]) {
       return promiseTry(() => {

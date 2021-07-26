@@ -3,16 +3,16 @@
  */
 
 import { getChild, setChild } from '@Lib/child';
-// import * as Message from 'Types/message';
 import { isPlainObject } from '@Lib/utils';
 import * as Types from '@Types/common';
+import * as Message from '@Types/message';
 
 const processors: Types.Processors = {}
 
 /*
  * Register anounced services by child in master
  */
-export const registerProcessor: Types.IRegisterProcessor = (child, message, resolve, reject) => {
+export const registerProcessor = (child: Types.ChildProcess, message: Message.Register, resolve: Types.Resolve, reject: Types.Reject) => {
   let { services, domain } = message
   const childId = child.pid
 

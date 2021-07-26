@@ -1,3 +1,7 @@
+/*
+ * Emitter functional for Fork IPC
+ */
+
 import EventEmitter from 'events';
 
 import { ACTIONS, CHANNEL } from '@Lib/constants';
@@ -44,6 +48,6 @@ export const removeChildListener = (eventName: Types.EventName, listener: Types.
 /*
  * Process emited event on parent
  */
-export const processEmited = (message: Types.MessageAny) => {
+export const processEmited = (message: Message.Emit) => {
   localEmitter.emit(message.eventName, ...message.data)
 }

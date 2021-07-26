@@ -7,9 +7,9 @@ import { ACTIONS, CHANNEL, STATUS } from '@Lib/constants';
 import { processEmited } from '@Lib/emitter';
 import { registerProcessor } from '@Lib/processor';
 import { doRequest, doResponce } from '@Lib/requests';
-// import * as Message from 'Types/message';
 import { isPlainObject } from '@Lib/utils';
 import * as Types from '@Types/common';
+import * as Message from '@Types/message';
 
 const childrensGrants: Types.ChildrensGrants = {}
 
@@ -19,7 +19,7 @@ const childrensGrants: Types.ChildrensGrants = {}
  */
 export const registerChild = (child: Types.ChildProcess) => {
   return new Promise((resolve, reject) => {
-    child.on('message', (message: Types.MessageAny) => {
+    child.on('message', (message: Message.Register | Message.ResultKnown | Message.Emit | Message.ProxyExecute) => {
       // ugly fix for strange bug - at jest for example
       message = { ...message }
 
@@ -38,16 +38,19 @@ export const registerChild = (child: Types.ChildProcess) => {
             proxyExecuteOnParent(message)
             break
           default:
+            // @ts-expect-error: Its only for unknown messages
             console.log(`Unhandled message type |${message.type}| ignored!`)
             console.log(message)
         }
       }
     })
     // ask child to do register
-    child.send({
+    const msg: Message.AskRegister = {
       channel: CHANNEL,
       type: ACTIONS.ASK_REGISTER
-    })
+    }
+
+    child.send(msg)
   })
 }
 
@@ -89,42 +92,48 @@ export const allowToChild = (child: Types.ChildProcess, options: Types.GrantOpti
 /*
  * Process proxy execute on parent by child
  */
-export const proxyExecuteOnParent = (message: Types.MessageAny) => {
+export const proxyExecuteOnParent = (message: Message.ProxyExecute) => {
   let child = getChild(message.pid)
 
   // for registered service only
   if (childrensGrants[message.pid] && childrensGrants[message.pid][message.domain] && childrensGrants[message.pid][message.domain][message.command]) {
     doRequest(message.domain, message.command, ...message.args)
       .then((result) => {
-        child.send({
+        const msg: Message.ProxyResultOk = {
           result,
           channel: CHANNEL,
           id: message.id,
           status: STATUS.OK,
           type: ACTIONS.PROXY_RESULT
-        })
+        }
+
+        child.send(msg)
       })
       .catch((error) => {
         // transform error from object to text
         if (error instanceof Error) {
           error = error.message
         }
-        child.send({
+        const msg: Message.ProxyResultFail = {
           error,
           channel: CHANNEL,
           id: message.id,
           status: STATUS.FAIL,
           type: ACTIONS.PROXY_RESULT
-        })
+        }
+
+        child.send(msg)
       })
   } else {
-    child.send({
+    const msg: Message.ProxyResultFail = {
       channel: CHANNEL,
       error: 'Cant execute or not granted, reject!',
       id: message.id,
       status: STATUS.FAIL,
       type: ACTIONS.PROXY_RESULT
-    })
+    }
+
+    child.send(msg)
   }
 }
 

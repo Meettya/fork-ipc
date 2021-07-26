@@ -6,16 +6,16 @@ import { getChild } from '@Lib/child';
 import { ACTIONS, CHANNEL, STATUS } from '@Lib/constants';
 import { tryGetLocalProcessor } from '@Lib/localProcessor';
 import { getChildId } from '@Lib/processor';
-// import * as Message from 'Types/message';
 import { getID, promiseTry } from '@Lib/utils';
 import * as Types from '@Types/common';
+import * as Message from '@Types/message';
 
 const requestQueue: Types.RequestQueue = {}
 
 /*
  * Make request to service, will return promise
  */
-export const doRequest = (domain: Types.Domain, command: Types.Command, ...args: any[]) => {
+export const doRequest = (domain: Types.Domain, command: Types.Command, ...args: Types.Args) => {
   let child: Types.ChildProcess
   const localProcessor = tryGetLocalProcessor(domain, command)
 
@@ -39,16 +39,17 @@ export const doRequest = (domain: Types.Domain, command: Types.Command, ...args:
         reject(Error(`Child died, cant execute domain |${domain}|, command |${command}|, rejected!`))
       } else {
         const id = getID('parent')
-
-        setRequestToQueue(id, resolve)
-        child.send({
+        const msg: Message.Execute = {
           args,
           command,
           domain,
           id,
           channel: CHANNEL,
           type: ACTIONS.EXECUTE
-        })
+        }
+
+        setRequestToQueue(id, resolve)
+        child.send(msg)
       }
     }
   })
@@ -57,13 +58,14 @@ export const doRequest = (domain: Types.Domain, command: Types.Command, ...args:
 /*
  * Send request result to parent
  */
-export const doResponce = (message: Types.MessageAny) => {
+export const doResponce = (message: Message.ResultKnown | Message.ProxyResultKnown) => {
   if (requestQueue[message.id]) {
     if (message.status === STATUS.OK) {
       requestQueue[message.id](message.result)
     } else if (message.status === STATUS.FAIL) {
       requestQueue[message.id](Promise.reject(Error(message.error)))
     } else {
+      // @ts-expect-error: Its only for unknown messages
       requestQueue[message.id](Promise.reject(Error(`unknown status |${message.status}|`)))
     }
   }

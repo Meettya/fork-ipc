@@ -15,7 +15,7 @@ export declare type Services = Record<Command, ChildId>
 export declare type Processors = Record<Domain, Services>
 
 export declare type Args = any[]
-export declare type Result = any
+export declare type Result = unknown
 export declare type ErrorString = string
 
 export declare type Resolve = (value: unknown) => void
@@ -26,13 +26,7 @@ export declare type RequestQueue = Record<RequestId, Resolve>
 export declare type EventName = string
 export declare type Listener = (...args: Args) => void
 
-export declare type MessageAny = any
-
 export declare type GrantOptions = Record<Domain, Command[]>
 export declare type CommandGrants = Record<Command, boolean>
 export declare type DomainGrants = Record<Domain, CommandGrants>
 export declare type ChildrensGrants = Record<ChildId, DomainGrants>
-
-export declare interface IRegisterProcessor {
-  (child: ChildProcess, message: MessageAny, resolve: Resolve, reject: Reject): void;
-}
