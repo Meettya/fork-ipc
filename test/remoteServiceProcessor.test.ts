@@ -1,12 +1,16 @@
 /*
  * Test suite for fork-ipc
  */
-const { fork } = require("child_process");
+import { ChildProcess, fork } from 'child_process';
+
+import { execute as executeType, registerChild as registerChildType } from '../';
 
 const childPath = `${__dirname}/fixtures`;
 
 describe("as remote service processor", () => {
-  let execute, registerChild, child1;
+  let execute: typeof executeType;
+  let registerChild: typeof registerChildType;
+  let child1: ChildProcess;
 
   beforeEach(() => {
     const ForkIpc = require("..");

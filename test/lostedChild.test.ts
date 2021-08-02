@@ -1,13 +1,18 @@
 /*
  * Test suite for fork-ipc
  */
-const { fork } = require("child_process");
-const { sleeper } = require("./utils/sleeper");
+
+import { ChildProcess, fork } from 'child_process';
+
+import { execute as executeType, registerChild as registerChildType } from '../';
+import { sleeper } from './utils/sleeper';
 
 const childPath = `${__dirname}/fixtures`;
 
 describe("work with losted child", () => {
-  let execute, registerChild, child2;
+  let execute: typeof executeType;
+  let registerChild: typeof registerChildType;
+  let child2: ChildProcess;
 
   beforeEach(() => {
     const ForkIpc = require("..");

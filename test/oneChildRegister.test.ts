@@ -1,13 +1,21 @@
 /*
  * Test suite for fork-ipc
  */
-const { fork } = require("child_process");
-const { sleeper } = require("./utils/sleeper");
+import { ChildProcess, fork } from 'child_process';
+
+import {
+    execute as executeType, parent as parentType, registerChild as registerChildType
+} from '../';
+import { sleeper } from './utils/sleeper';
 
 const childPath = `${__dirname}/fixtures`;
 
 describe("as register services for one child case", () => {
-  let parent, execute, registerChild, child1, childDelay;
+  let parent: typeof parentType;
+  let execute: typeof executeType;
+  let registerChild: typeof registerChildType;
+  let child1: ChildProcess;
+  let childDelay: ChildProcess;
 
   beforeEach(() => {
     const ForkIpc = require("..");

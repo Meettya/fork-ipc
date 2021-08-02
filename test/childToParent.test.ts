@@ -1,12 +1,20 @@
 /*
  * Test suite for fork-ipc
  */
-const { fork } = require("child_process");
+import { ChildProcess, fork } from 'child_process';
+
+import {
+    execute as executeType, parent as parentType, registerChild as registerChildType
+} from '../';
 
 const childPath = `${__dirname}/fixtures`;
 
 describe("as child to parent", () => {
-  let parent, execute, registerChild, child1, child2;
+  let parent: typeof parentType;
+  let execute: typeof executeType;
+  let registerChild: typeof registerChildType;
+  let child1: ChildProcess;
+  let child2: ChildProcess;
 
   beforeEach(() => {
     const ForkIpc = require("..");
@@ -64,7 +72,7 @@ describe("as child to parent", () => {
   });
 
   test("should execute local service from child to parent", () => {
-    const localFn = (a, b) => {
+    const localFn = (a: number, b: number) => {
       return Promise.resolve(a + b);
     };
 
