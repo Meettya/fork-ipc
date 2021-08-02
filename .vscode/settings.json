@@ -1,6 +1,6 @@
 {
-    "editor.tabSize": 2,
-    "editor.formatOnSave": true,
-    "editor.defaultFormatter": "esbenp.prettier-vscode",
-    "importSorter.generalConfiguration.sortOnBeforeSave": true,
+  "editor.tabSize": 2,
+  "editor.formatOnSave": true,
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "importSorter.generalConfiguration.sortOnBeforeSave": true
 }
