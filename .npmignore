@@ -1,5 +1,7 @@
 .DS_Store
+.github
 .travis.yml
+.vscode
 coverage
 doc
 example
@@ -10,4 +12,3 @@ src
 test
 tsconfig.json
 yarn.lock
-.vscode

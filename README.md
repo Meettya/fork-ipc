@@ -1,6 +1,4 @@
-[![Dependency Status](https://gemnasium.com/Meettya/fork-ipc.png)](https://gemnasium.com/Meettya/fork-ipc)
-[![Build Status](https://travis-ci.org/Meettya/fork-ipc.png?branch=master)](https://travis-ci.org/Meettya/fork-ipc)
-[![JavaScript Style Guide](https://img.shields.io/badge/code%20style-standard-brightgreen.svg)](http://standardjs.com/)
+![Test status](https://github.com/Meettya/fork-ipc/actions/workflows/tests.yml/badge.svg?branch=master)
 
 # Fork IPC
 
@@ -29,14 +27,14 @@ Minimal example contains 2 files:
     /*
      * This is parent process example
      */
-    import forkIpc from 'fork-ipc'
+    import { registerChild, execute } from 'fork-ipc/parent'
     import { fork } from 'child_process'
 
     const child1 = fork('./child.js')
 
-    forkIpc.parent.registerChild(child1)
+    registerChild(child1)
       .then(() => {
-        return forkIpc.parent.execute('test', 'add', 2, 3)
+        return execute('test', 'add', 2, 3)
       })
       .then((result) => {
         console.log('MASTER execute OK');
@@ -55,17 +53,20 @@ Minimal example contains 2 files:
     /*
      * This is child process example
      */
-    import forkIpc from 'fork-ipc'
+    import { servicesAnnouncement } from 'fork-ipc/child'
 
     function add (a, b) {
       return a + b;
     }
 
-    forkIpc.child.servicesAnnouncement('test', { add: add })
-
+    servicesAnnouncement('test', { add: add })
 
 ## Install:
 
+    // using yarn
+    yarn add fork-ipc
+
+    // using npm
     npm install fork-ipc
 
 ## Usage:
@@ -76,7 +77,9 @@ fork-ipc provides 2 main types of interfaces - for parent and for child process
 
 #### Register child
 
-    forkIpc.parent.registerChild(forkedProcess) -> Promise
+    import { registerChild } from 'fork-ipc/parent'
+
+    registerChild(ChildProcess) -> Promise
 
 Register child process, make by `child_process.fork()` and return promise.
 
@@ -86,13 +89,17 @@ IMPORTANT: An attempt registration processes, providing the same services in the
 
 #### Register local
 
-    forkIpc.parent.registerLocal(domain, { seviceName: seviceFn, ... }) -> Promise
+    import { registerLocal } from 'fork-ipc/parent'
+
+    registerLocal(domain, { seviceName: seviceFn, ... }) -> Promise
 
 Register local service(function), defined here, at parent. Its executed prior, instead of registered service previously by child, for example for test.
 
 #### Allow to call from Child
 
-    forkIpc.parent.allowToChild(forkedProcess, { domain : [seviceName, ...], ...}) -> Promise
+    import { allowToChild } from 'fork-ipc/parent'
+
+    allowToChild(ChildProcess, { domain : [seviceName, ...], ...}) -> Promise
 
 Grant to child process call(execute) listed service(function) at selected domain(s) and return promise.
 
@@ -102,7 +109,9 @@ IMPORTANT: there is no service reachable test in case of ability separate child 
 
 #### Execute remote function
 
-    forkIpc.parent.execute(domain, seviceName, ...arg) -> Promise
+    import { execute } from 'fork-ipc/parent'
+
+    execute(domain, seviceName, ...arg) -> Promise
 
 Make request to call remote service(function), at chosen domain, with any arguments in child process and return promise.
 
@@ -110,19 +119,25 @@ Promise will be rejected in case of requested process absence or child process u
 
 #### Subscribe on messages
 
-    forkIpc.parent.on(channel, cb)
+    import * as parent from 'fork-ipc/parent'
+
+    parent.on(channel, cb)
 
 Subscribe on messages from child process, via EventEmitter.
 
 #### Subscribe on one message
 
-    forkIpc.parent.once(channel, cb)
+    import * as parent from 'fork-ipc/parent'
+
+    parent.once(channel, cb)
 
 Subscribe once on message from child process, via EventEmitter.
 
 #### Unsubscribe from messages
 
-    forkIpc.parent.removeListener(channel, cb)
+    import * as parent from 'fork-ipc/parent'
+
+    parent.removeListener(channel, cb)
 
 Unsubscribe from messages from child process, via EventEmitter.
 
@@ -130,13 +145,17 @@ Unsubscribe from messages from child process, via EventEmitter.
 
 #### Announce services
 
-    forkIpc.child.servicesAnnouncement(domain, { seviceName: seviceFn, ... })
+    import { servicesAnnouncement } from 'fork-ipc/child'
+
+    servicesAnnouncement(domain, { seviceName: seviceFn, ... })
 
 Announce services (functions) at selected domain to parent process. Announced services only may be called by parent. Child process may announce some services at different domain.
 
 #### Execute remote function
 
-    forkIpc.child.execute(domain, seviceName, ...arg) -> Promise
+    import { execute } from 'fork-ipc/child'
+
+    execute(domain, seviceName, ...arg) -> Promise
 
 Make request to call remote service(function), at chosen domain, with any arguments from child process to parent process and return promise.
 
@@ -144,6 +163,8 @@ Promise will be rejected in case of requested process absence or endpoint unreac
 
 #### Emit message
 
-    forkIpc.child.emit(channel, ...args)
+    import * as child from 'fork-ipc/child'
+
+    child.emit(channel, ...args)
 
 Emit message to parent process, via EventEmitter on parent side. May be used for notify parent on some events in child process.

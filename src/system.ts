@@ -7,12 +7,10 @@ import { getIdConter } from '@Lib/utils';
 /*
  * For diagnostic
  */
-export const system = {
-  diagnostic: {
-    idCounter: getIdConter(),
-    childrens: getChildrens(),
-    childrensGrants: getChildrensGrants(),
-    processors: getProcessors(),
-    requestQueue: getRequestQueue()
-  }
+export const diagnostic = {
+  idCounter: getIdConter(),
+  childrens: getChildrens(),
+  childrensGrants: getChildrensGrants(),
+  processors: getProcessors(),
+  requestQueue: getRequestQueue()
 }

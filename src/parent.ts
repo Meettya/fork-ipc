@@ -3,12 +3,13 @@ import { registerLocal } from '@Lib/localProcessor';
 import { allowToChild, registerChild } from '@Lib/parent';
 import { doRequest } from '@Lib/requests';
 
-export const parent = {
-  allowToChild: allowToChild,
-  execute: doRequest,
-  on: onFromChild,
-  once: onceFromChild,
-  registerChild: registerChild,
-  registerLocal: registerLocal,
-  removeListener: removeChildListener
-}
+export const execute = doRequest;
+export const on = onFromChild;
+export const once = onceFromChild;
+export const removeListener = removeChildListener;
+
+export {
+  allowToChild,
+  registerChild,
+  registerLocal
+};
