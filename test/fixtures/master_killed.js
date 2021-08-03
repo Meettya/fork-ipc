@@ -2,16 +2,16 @@
  * Master
  */
 
-var forkIpc = require('../..').default;
+const { registerChild, execute } = require('../..');
 
 var childProcess  = require('child_process');
 
 var child2 = childProcess.fork('./child2.js');
 
-forkIpc.parent.registerChild(child2)
+registerChild(child2)
   .then(function(){
     child2.kill()
-    return forkIpc.parent.execute('example', 'add', 2, 3)
+    return execute('example', 'add', 2, 3)
   })
   .then(function(result){
     console.log('KILLED execute OK');

@@ -2,19 +2,19 @@
  * Master
  */
 
-var forkIpc = require('../..').default;
+const { registerChild, execute, parent } = require('../..');
 
 var childProcess  = require('child_process');
 
 var child1 = childProcess.fork('./child1.js');
 var child2 = childProcess.fork('./child2.js');
 
-forkIpc.parent.once('test_event', function(result){
+parent.once('test_event', function(result){
   console.log('MASTER once event resived');
   console.log(result);
 });
 
-forkIpc.parent.on('test_event', function(){
+parent.on('test_event', function(){
   console.log('MASTER on event resived');
   var res;
   
@@ -22,13 +22,13 @@ forkIpc.parent.on('test_event', function(){
   console.log(res);
 });
 
-forkIpc.parent.registerChild(child1)
+registerChild(child1)
   .then(function(){
-    return forkIpc.parent.registerChild(child2);
+    return registerChild(child2);
   })
   .then(function(result){
 
-    forkIpc.parent.execute('test', 'add', 2, 3)
+    execute('test', 'add', 2, 3)
       .then(function(result){
         console.log('MASTER execute OK');
         console.log(result);
@@ -38,7 +38,7 @@ forkIpc.parent.registerChild(child1)
         console.log(err);
       });
 
-    forkIpc.parent.execute('test', 'addAsync', 10, 22)
+    execute('test', 'addAsync', 10, 22)
       .then(function(result){
         console.log('MASTER addAsync execute OK');
         console.log(result);
@@ -49,7 +49,7 @@ forkIpc.parent.registerChild(child1)
       });
 
 
-    forkIpc.parent.execute('test', 'errorSync', 10, 22)
+    execute('test', 'errorSync', 10, 22)
       .then(function(result){
         console.log('MASTER errorSync execute OK');
         console.log(result);
@@ -59,7 +59,7 @@ forkIpc.parent.registerChild(child1)
         console.log(err);
       });
 
-    forkIpc.parent.execute('test', 'errorAsync', 10, 22)
+    execute('test', 'errorAsync', 10, 22)
       .then(function(result){
         console.log('MASTER errorAsync execute OK');
         console.log(result);
@@ -69,7 +69,7 @@ forkIpc.parent.registerChild(child1)
         console.log(err);
       });
 
-    forkIpc.parent.execute('example', 'add', 10, 20)
+    execute('example', 'add', 10, 20)
       .then(function(result){
         console.log('MASTER2 execute OK');
         console.log(result);
@@ -79,7 +79,7 @@ forkIpc.parent.registerChild(child1)
         console.log(err);
       });
 
-    forkIpc.parent.execute('example', 'multiplyAsync', 5, 8)
+    execute('example', 'multiplyAsync', 5, 8)
       .then(function(result){
         console.log('MASTER2 execute OK');
         console.log(result);
@@ -89,7 +89,7 @@ forkIpc.parent.registerChild(child1)
         console.log(err);
       });
 
-    forkIpc.parent.execute('example', 'foo', 5, 8)
+    execute('example', 'foo', 5, 8)
       .then(function(result){
         console.log('foo execute OK');
         console.log(result);

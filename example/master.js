@@ -1,7 +1,7 @@
 /*
  * This is parent process example
  */
-import forkIpc from 'fork-ipc'
+import forkIpc from '../dist/index.js'
 import { fork } from 'child_process'
 
 const child1 = fork('./child.js')

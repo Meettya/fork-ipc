@@ -2,7 +2,7 @@
  * Master
  */
 
-var forkIpc = require('../..').default;
+const { registerChild, execute } = require('../..');
 
 var childProcess  = require('child_process');
 
@@ -11,10 +11,10 @@ var child1 = childProcess.fork('./child1.js');
 var delayed = function () {
   console.log('start delayed');
 
-  forkIpc.parent.registerChild(child1)
+  registerChild(child1)
     .then(function(result){
 
-      forkIpc.parent.execute('test', 'add', 2, 3)
+      execute('test', 'add', 2, 3)
         .then(function(result){
           console.log('MASTER execute OK');
           console.log(result);

@@ -2,9 +2,7 @@
  * child1
  */
 
-var Promise = require('bluebird');
-
-var forkIpc = require('../..').default;
+const { servicesAnnouncement } = require("../..");
 
 function add (a, b) {
   return a + b;
@@ -28,4 +26,4 @@ function errorAsync () {
   return Promise.reject('just ASINC error');
 }
 
-forkIpc.child.servicesAnnouncement('test', { add: add, addAsync : addAsync, errorSync: errorSync, errorAsync : errorAsync });
+servicesAnnouncement('test', { add: add, addAsync : addAsync, errorSync: errorSync, errorAsync : errorAsync });
