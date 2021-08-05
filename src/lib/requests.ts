@@ -15,15 +15,17 @@ const requestQueue: Types.RequestQueue = {}
 /*
  * Make request to service, will return promise
  */
-export const doRequest = (domain: Types.Domain, command: Types.Command, ...args: Types.Args) => {
+export const doRequest = async <T extends (...args: any) => any>
+  (domain: Types.Domain, command: Types.Command, ...args: Parameters<T>): Promise<ReturnType<T>> => {
   let child: Types.ChildProcess
   const localProcessor = tryGetLocalProcessor(domain, command)
 
   // if exist local processor - execute it
   if (typeof localProcessor === 'function') {
-    return promiseTry(() => {
-      return localProcessor(...args)
-    })
+    const result = await promiseTry(() => {
+      return localProcessor(...args as Types.Args);
+    });
+    return result as ReturnType<T>;
   }
 
   let childId = getChildId(domain, command)
@@ -48,7 +50,7 @@ export const doRequest = (domain: Types.Domain, command: Types.Command, ...args:
           type: ACTIONS.EXECUTE
         }
 
-        setRequestToQueue(id, resolve)
+        setRequestToQueue(id, resolve as ReturnType<T>)
         child.send(msg)
       }
     }

@@ -79,7 +79,8 @@ export const servicesAnnouncement = (domain: Types.Domain, services: Types.Local
  * Execute via parent request by child
  * service(function) may be routed by parent to another child or announced by parent inself
  */
-export const executeViaParent = (domain: Types.Domain, command: Types.Command, ...args: Types.Args) => {
+export const executeViaParent = <T extends (...args: any) => any>
+  (domain: Types.Domain, command: Types.Command, ...args: Parameters<T>): Promise<ReturnType<T>> => {
   const id = getID('child')
 
   return new Promise((resolve) => {
@@ -93,7 +94,7 @@ export const executeViaParent = (domain: Types.Domain, command: Types.Command, .
       type: ACTIONS.PROXY_EXECUTE
     }
 
-    setRequestToQueue(id, resolve)
+    setRequestToQueue(id, resolve as ReturnType<T>)
     process.send!(msg)
   })
 }

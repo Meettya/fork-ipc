@@ -8,13 +8,14 @@ export declare type Domain = string
 export declare type Command = string
 export declare type Channel = typeof CHANNEL
 
-export declare type LocalServices = Record<Command, Function>
+export declare type Args = any[]
+
+export declare type LocalServices = Record<Command, (...args: Args) => any>
 export declare type LocalProcessors = Record<Domain, LocalServices>
 
 export declare type Services = Record<Command, ChildId>
 export declare type Processors = Record<Domain, Services>
 
-export declare type Args = any[]
 export declare type Result = unknown
 export declare type ErrorString = string
 
