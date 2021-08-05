@@ -23,43 +23,51 @@ All this should be implemented independently.
 
 Minimal example contains 2 files:
 
-    // main.js
+    // main.ts
     /*
      * This is parent process example
      */
-    import { registerChild, execute } from 'fork-ipc/parent'
-    import { fork } from 'child_process'
+    import { fork } from 'child_process';
+    import { join } from 'path';
 
-    const child1 = fork('./child.js')
+    import { execute, registerChild } from 'fork-ipc/parent';
 
-    registerChild(child1)
+    const child = fork(join(__dirname, 'child.js'))
+
+    import type { Add } from './child';
+
+    const main = async () => {
+      await registerChild(child);
+      const result = await execute<Add>('test', 'add', 2, 3);
+      console.log(`Result is ${result}`);
+    }
+
+    main()
       .then(() => {
-        return execute('test', 'add', 2, 3)
-      })
-      .then((result) => {
         console.log('MASTER execute OK');
-        console.log(result);
       })
       .catch((err) => {
         console.log('MASTER execute FAIL');
         console.log(err);
       })
-      .finally(function(){
+      .finally(function () {
         process.exit();
       });
 
 
-    // child.js
+    // child.ts
     /*
      * This is child process example
      */
-    import { servicesAnnouncement } from 'fork-ipc/child'
+    import { servicesAnnouncement } from 'fork-ipc/child';
 
-    function add (a, b) {
-      return a + b;
+    export type Add = (a: number, b: number) => number
+
+    const add: Add = (a, b) => {
+      return a + b
     }
 
-    servicesAnnouncement('test', { add: add })
+    servicesAnnouncement('test', { add });
 
 ## Install:
 

@@ -1,6 +1,6 @@
 {
   "name": "fork-ipc",
-  "version": "1.0.1",
+  "version": "1.0.3",
   "description": "Safe and easy fork IPC wrapper.",
   "main": "./dist/index.js",
   "exports": {
@@ -48,6 +48,7 @@
     "node": ">=12.0.0"
   },
   "devDependencies": {
+    "@tsconfig/node12": "^1.0.9",
     "@types/jest": "^26.0.24",
     "@types/node": "^16.4.10",
     "jest": "^27.0.6",
