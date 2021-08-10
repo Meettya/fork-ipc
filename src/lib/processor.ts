@@ -10,7 +10,7 @@ import * as Message from '@Types/message';
 const processors: Types.Processors = {}
 
 /*
- * Register anounced services by child in master
+ * Register anounced services by child in main process
  */
 export const registerProcessor = (child: Types.ChildProcess, message: Message.Register, resolve: Types.Resolve, reject: Types.Reject) => {
   let { services, domain } = message

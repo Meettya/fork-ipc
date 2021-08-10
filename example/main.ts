@@ -19,10 +19,10 @@ const main = async () => {
 
 main()
   .then(() => {
-    console.log('MASTER execute OK');
+    console.log('MAIN execute OK');
   })
   .catch((err) => {
-    console.log('MASTER execute FAIL');
+    console.log('MAIN execute FAIL');
     console.log(err);
   })
   .finally(function () {
