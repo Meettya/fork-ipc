@@ -30,12 +30,11 @@ Minimal example contains 2 files:
  */
 import { fork } from "child_process";
 import { join } from "path";
-
 import { execute, registerChild } from "fork-ipc/parent";
 
-const child = fork(join(__dirname, "child.js"));
-
 import type { Add } from "./child";
+
+const child = fork(join(__dirname, "child.js"));
 
 const main = async () => {
   await registerChild(child);
@@ -45,10 +44,10 @@ const main = async () => {
 
 main()
   .then(() => {
-    console.log("MASTER execute OK");
+    console.log("MAIN execute OK");
   })
   .catch((err) => {
-    console.log("MASTER execute FAIL");
+    console.log("MAIN execute FAIL");
     console.log(err);
   })
   .finally(function () {
@@ -95,7 +94,7 @@ fork-ipc provides 2 main types of interfaces - for parent and for child process
 #### Register child
 
 ```typescript
-import { registerChild } from 'fork-ipc/parent'
+import { registerChild } from "fork-ipc/parent"
 
 registerChild(ChildProcess) -> Promise
 ```
@@ -109,7 +108,7 @@ IMPORTANT: An attempt registration processes, providing the same services in the
 #### Register local
 
 ```typescript
-import { registerLocal } from 'fork-ipc/parent'
+import { registerLocal } from "fork-ipc/parent"
 
 registerLocal(domain, { seviceName: seviceFn, ... }) -> Promise
 ```
@@ -119,7 +118,7 @@ Register local service(function), defined here, at parent. Its executed prior, i
 #### Allow to call from Child
 
 ```typescript
-import { allowToChild } from 'fork-ipc/parent'
+import { allowToChild } from "fork-ipc/parent"
 
 allowToChild(ChildProcess, { domain : [seviceName, ...], ...}) -> Promise
 ```
@@ -133,7 +132,7 @@ IMPORTANT: there is no service reachable test in case of ability separate child 
 #### Execute remote function
 
 ```typescript
-import { execute } from 'fork-ipc/parent'
+import { execute } from "fork-ipc/parent"
 
 execute(domain, seviceName, ...arg) -> Promise
 ```
@@ -177,7 +176,7 @@ Unsubscribe from messages from child process, via EventEmitter.
 #### Announce services
 
 ```typescript
-import { servicesAnnouncement } from 'fork-ipc/child'
+import { servicesAnnouncement } from "fork-ipc/child"
 
 servicesAnnouncement(domain, { seviceName: seviceFn, ... })
 ```
@@ -187,7 +186,7 @@ Announce services (functions) at selected domain to parent process. Announced se
 #### Execute remote function
 
 ```typescript
-import { execute } from 'fork-ipc/child'
+import { execute } from "fork-ipc/child"
 
 execute(domain, seviceName, ...arg) -> Promise
 ```
