@@ -2,34 +2,34 @@
  * child1
  */
 
-const { servicesAnnouncement } = require("../..");
+const { servicesAnnouncement } = require("../..")
 
 function add(a, b) {
-  return a + b;
+  return a + b
 }
 
 function addAsync(a, b) {
   return new Promise(function (resolve, reject) {
-    var resolver = function () {
-      return resolve(a + b);
-    };
+    const resolver = function () {
+      return resolve(a + b)
+    }
 
-    setTimeout(resolver, 1000);
-  });
+    setTimeout(resolver, 1000)
+  })
 }
 
 function errorSync() {
-  throw Error("just sinc error");
+  throw Error("just sinc error")
 }
 
 function errorAsync() {
-  return Promise.reject("just ASINC error");
+  return Promise.reject(Error("just ASINC error"))
 }
 
-var delayed = function () {
-  //console.log('child delayed run');
-  servicesAnnouncement("test", { add, addAsync, errorSync, errorAsync });
-};
+const delayed = function () {
+  // console.log('child delayed run');
+  servicesAnnouncement("test", { add, addAsync, errorAsync, errorSync })
+}
 
-//console.log('child before delay');
-setTimeout(delayed, 500);
+// console.log('child before delay');
+setTimeout(delayed, 500)

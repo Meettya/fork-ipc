@@ -1,4 +1,4 @@
-import { CHANNEL } from '@Lib/constants';
+import { CHANNEL } from '@Lib/constants'
 
 export declare type ChildProcess = import('child_process').ChildProcess
 export declare type ChildId = number
@@ -10,7 +10,8 @@ export declare type Channel = typeof CHANNEL
 
 export declare type Args = any[]
 
-export declare type LocalServices = Record<Command, (...args: Args) => any>
+export declare type LocalService = (...args: Args) => any
+export declare type LocalServices = Record<Command, LocalService>
 export declare type LocalProcessors = Record<Domain, LocalServices>
 
 export declare type Services = Record<Command, ChildId>

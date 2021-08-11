@@ -2,32 +2,32 @@
  * Main
  */
 
-const { registerChild, execute } = require("../../dist");
+const { execute, registerChild } = require("../../dist")
 
-var childProcess = require("child_process");
+const childProcess = require("child_process")
 
-var child1 = childProcess.fork("./child1.js");
+const child1 = childProcess.fork("./child1.js")
 
-var delayed = function () {
-  console.log("start delayed");
+const delayed = function () {
+  console.log("start delayed")
 
   registerChild(child1)
     .then(function (result) {
       execute("test", "add", 2, 3)
         .then(function (result) {
-          console.log("MAIN execute OK");
-          console.log(result);
+          console.log("MAIN execute OK")
+          console.log(result)
         })
         .catch(function (err) {
-          console.log("MAIN execute FAIL");
-          console.log(err);
-        });
+          console.log("MAIN execute FAIL")
+          console.log(err)
+        })
     })
     .catch(function (err) {
-      console.log("MAIN FAIL");
-      console.log(err);
-    });
-};
+      console.log("MAIN FAIL")
+      console.log(err)
+    })
+}
 
-console.log("before timeout");
-setTimeout(delayed, 1500);
+console.log("before timeout")
+setTimeout(delayed, 1500)
