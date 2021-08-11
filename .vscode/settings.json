@@ -2,5 +2,7 @@
   "editor.tabSize": 2,
   "editor.formatOnSave": true,
   "editor.defaultFormatter": "esbenp.prettier-vscode",
-  "importSorter.generalConfiguration.sortOnBeforeSave": true
+  "prettier.semi": false,
+  "importSorter.generalConfiguration.sortOnBeforeSave": true,
+  "importSorter.importStringConfiguration.hasSemicolon": false
 }

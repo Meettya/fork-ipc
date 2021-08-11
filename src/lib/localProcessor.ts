@@ -2,22 +2,22 @@
  * Local Processor for Fork IPC
  */
 
-import { isPlainObject } from '@Lib/utils';
-import * as Types from '@Types/common';
+import { isPlainObject } from '@Lib/utils'
+import * as Types from '@Types/common'
 
 const localProcessors: Types.LocalProcessors = {}
 
 /*
  * Register services localy
  */
-export const registerLocal = (domain: Types.Domain, services: Types.LocalServices) => {
-  return new Promise((resolve, reject) => {
+export const registerLocal = async (domain: Types.Domain, services: Types.LocalServices): Promise<any> => {
+  return await new Promise((resolve, reject) => {
     if (!isPlainObject(localProcessors[domain])) {
       localProcessors[domain] = {}
     }
 
     for (const service in services) {
-      if (services.hasOwnProperty(service)) {
+      if (Object.prototype.hasOwnProperty.call(services, service)) {
         const fn = services[service]
         if (typeof fn !== 'function') {
           return reject(Error(`Service ${service} not a function, reject!`))
@@ -29,6 +29,6 @@ export const registerLocal = (domain: Types.Domain, services: Types.LocalService
   })
 }
 
-export const tryGetLocalProcessor = (domain: Types.Domain, command: Types.Command) => (
-  localProcessors[domain] && localProcessors[domain][command]
+export const tryGetLocalProcessor = (domain: Types.Domain, command: Types.Command): Types.LocalService => (
+  localProcessors[domain]?.[command]
 )

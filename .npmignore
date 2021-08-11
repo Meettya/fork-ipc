@@ -1,4 +1,6 @@
 .DS_Store
+.eslintignore
+.eslintrc.js
 .github
 .travis.yml
 .vscode
@@ -10,5 +12,6 @@ jest.config.js
 ROADMAP.md
 src
 test
+tsconfig.eslint.json
 tsconfig.json
 yarn.lock

@@ -1,5 +1,5 @@
-import { ACTIONS, STATUS } from '@Lib/constants';
-import * as Common from '@Types/common';
+import { ACTIONS, STATUS } from '@Lib/constants'
+import * as Common from '@Types/common'
 
 export declare interface AskRegister {
   channel: Common.Channel,

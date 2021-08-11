@@ -1,0 +1,8 @@
+.eslintrc.js
+.github
+.vscode
+coverage
+dist
+example
+jest.config.js
+node_modules

@@ -2,22 +2,22 @@
  * Main
  */
 
-const { registerChild, execute } = require("../../dist");
+const { execute, registerChild } = require("../../dist")
 
-var childProcess = require("child_process");
+const childProcess = require("child_process")
 
-var child2 = childProcess.fork("./child2.js");
+const child2 = childProcess.fork("./child2.js")
 
 registerChild(child2)
   .then(function () {
-    child2.kill();
-    return execute("example", "add", 2, 3);
+    child2.kill()
+    return execute("example", "add", 2, 3)
   })
   .then(function (result) {
-    console.log("KILLED execute OK");
-    console.log(result);
+    console.log("KILLED execute OK")
+    console.log(result)
   })
   .catch(function (err) {
-    console.log("KILLED execute FAIL");
-    console.log(err);
-  });
+    console.log("KILLED execute FAIL")
+    console.log(err)
+  })

@@ -1,47 +1,48 @@
 /*
  * Test suite for fork-ipc
  */
-import { execute as executeType, parent as parentType } from '../';
+import { execute as executeType, parent as parentType } from '../'
 
 describe("as registered local (at parent) services", () => {
-  let parent: typeof parentType;
-  let execute: typeof executeType;
+  let parent: typeof parentType
+  let execute: typeof executeType
 
   beforeEach(() => {
-    const ForkIpc = require("..");
-    execute = ForkIpc.execute;
-    parent = ForkIpc.parent;
-  });
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
+    const ForkIpc = require("..")
+    execute = ForkIpc.execute
+    parent = ForkIpc.parent
+  })
 
-  test("should register local service", () => {
-    expect.assertions(1);
-    const localFn = () => { };
+  test("should register local service", async () => {
+    expect.assertions(1)
+    const localFn = (): void => { }
 
-    return parent.registerLocal("test", { localFn: localFn }).then(() => {
-      expect(true).toBe(true);
-    });
-  });
+    return await parent.registerLocal("test", { localFn: localFn }).then(() => {
+      expect(true).toBe(true)
+    })
+  })
 
-  test("should rejected local service registration if not function", () => {
-    expect.assertions(1);
+  test("should rejected local service registration if not function", async () => {
+    expect.assertions(1)
     // @ts-expect-error: should hightlite localFn
-    return parent.registerLocal("test", { localFn: "fake" }).catch((e) => {
-      return expect(e).toBeInstanceOf(Error);
-    });
-  });
+    const res = parent.registerLocal("test", { localFn: "fake" })
 
-  test("should execute local service localy", () => {
-    const localFn = (a: number, b: number) => {
-      return Promise.resolve(a + b);
-    };
+    await expect(res).rejects.toThrow(Error)
+  })
 
-    return parent
+  test("should execute local service localy", async () => {
+    const localFn = async (a: number, b: number): Promise<number> => {
+      return await Promise.resolve(a + b)
+    }
+
+    return await parent
       .registerLocal("test", { localFn: localFn })
-      .then(() => {
-        return execute("test", "localFn", 2, 3);
+      .then(async () => {
+        return await execute("test", "localFn", 2, 3)
       })
       .then((res) => {
-        expect(res).toBe(5);
-      });
-  });
-});
+        expect(res).toBe(5)
+      })
+  })
+})
