@@ -1,4 +1,5 @@
 .dccache
+.dcignore
 .DS_Store
 .eslintignore
 .eslintrc.js
