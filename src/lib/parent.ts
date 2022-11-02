@@ -70,6 +70,10 @@ export const allowToChild = async (child: Types.ChildProcess, options: Types.Gra
       return reject(Error('Grant error, |childId| is undefined!'))
     }
 
+    if (`${childId}` === '__proto__') {
+      return reject(Error(`Child id ${childId} not allowed, reject!`))
+    }
+
     if (!isPlainObject(childrensGrants[childId])) {
       childrensGrants[childId] = {}
       for (const domain in options) {

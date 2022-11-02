@@ -1,6 +1,6 @@
 {
   "name": "fork-ipc",
-  "version": "1.0.15",
+  "version": "1.0.17",
   "description": "Safe and easy fork IPC wrapper.",
   "main": "./dist/index.js",
   "exports": {
