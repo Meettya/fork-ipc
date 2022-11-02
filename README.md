@@ -1,4 +1,4 @@
-[![Test status](https://github.com/Meettya/fork-ipc/actions/workflows/tests.yml/badge.svg)](https://github.com/Meettya/fork-ipc/actions/workflows/tests.yml) &emsp; [![Language grade: JavaScript](https://img.shields.io/lgtm/grade/javascript/g/Meettya/fork-ipc.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/Meettya/fork-ipc/context:javascript) &emsp; ![Dependenies](https://img.shields.io/badge/dependencies-ZERO-green)
+[![Test status](https://github.com/Meettya/fork-ipc/actions/workflows/tests.yml/badge.svg)](https://github.com/Meettya/fork-ipc/actions/workflows/tests.yml) &emsp; [![CodeQL status](https://github.com/Meettya/fork-ipc/actions/workflows/codeql.yml/badge.svg)](https://github.com/Meettya/fork-ipc/actions/workflows/codeql.yml) &emsp; ![Dependenies](https://img.shields.io/badge/dependencies-ZERO-green)
 
 # Fork IPC
 

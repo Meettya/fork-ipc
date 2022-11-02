@@ -18,7 +18,7 @@ describe("as registered local (at parent) services", () => {
     expect.assertions(1)
     const localFn = (): void => { }
 
-    return await parent.registerLocal("test", { localFn: localFn }).then(() => {
+    return await parent.registerLocal("test", { localFn }).then(() => {
       expect(true).toBe(true)
     })
   })
@@ -37,7 +37,7 @@ describe("as registered local (at parent) services", () => {
     }
 
     return await parent
-      .registerLocal("test", { localFn: localFn })
+      .registerLocal("test", { localFn })
       .then(async () => {
         return await execute("test", "localFn", 2, 3)
       })
