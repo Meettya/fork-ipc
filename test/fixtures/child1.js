@@ -27,8 +27,8 @@ function errorAsync() {
 }
 
 servicesAnnouncement("test", {
-  add: add,
-  addAsync: addAsync,
-  errorAsync: errorAsync,
-  errorSync: errorSync,
+  add,
+  addAsync,
+  errorAsync,
+  errorSync,
 })

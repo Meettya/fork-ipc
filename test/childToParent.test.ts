@@ -93,7 +93,7 @@ describe("as child to parent", () => {
     }
 
     return await parent
-      .registerLocal("test", { localFn: localFn })
+      .registerLocal("test", { localFn })
       .then(async () => {
         return await registerChild(child2)
       })
