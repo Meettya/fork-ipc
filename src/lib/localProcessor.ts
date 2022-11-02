@@ -12,6 +12,10 @@ const localProcessors: Types.LocalProcessors = {}
  */
 export const registerLocal = async (domain: Types.Domain, services: Types.LocalServices): Promise<any> => {
   return await new Promise((resolve, reject) => {
+    if (domain === '__proto__') {
+      return reject(Error(`Domain name ${domain} not allowed, reject!`))
+    }
+
     if (!isPlainObject(localProcessors[domain])) {
       localProcessors[domain] = {}
     }
